@@ -1,5 +1,6 @@
 'use client'
 
+import { useLazyGetSummaryQuery } from "@/utils/article"
 import Image from "next/image"
 import { useState } from "react"
 
@@ -10,9 +11,17 @@ const Demo = () => {
     summary:''
   })
 
+  const [getSummary,{error,isFetching}] = useLazyGetSummaryQuery()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    alert('submitting')
+    const {data} = await getSummary({articleUrl:article.url});
+
+    if(data?.summary){
+      setArticle({...article,summary:data.summary})
+    }
+
+    console.log(article)
   }
 
   const handleChange = (e) => {
