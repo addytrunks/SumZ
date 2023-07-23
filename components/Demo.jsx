@@ -27,17 +27,43 @@ const Demo = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const {data} = await getSummary({articleUrl:article.url});
+    const localStorageItems = JSON.parse(localStorage.getItem('articleUrls'))
+    let sameExists = false
+    let sameData = {}
 
-    if(data?.summary){
-      const newArticle = {...article,summary:data.summary}
-      const updatedAllArticles = [newArticle,...allArticles]
-
-      setArticle(newArticle)
-      setAllArticles(updatedAllArticles)
-
-      localStorage.setItem('articleUrls',JSON.stringify(updatedAllArticles))
+    // Checking whether the user adds the same url search
+    for(let i=0;i<localStorageItems.length;i++){
+      if(localStorageItems[i].url === article.url){
+        sameExists = true
+        sameData = localStorageItems[i]
+        break
+      }
     }
+
+    if(sameExists == false){
+      const {data} = await getSummary({articleUrl:article.url});
+
+      if(data?.summary){
+        const newArticle = {...article,summary:data.summary}
+        const updatedAllArticles = [newArticle,...allArticles]
+        
+        setArticle(newArticle)
+        
+        // Checking whether the user adds the same url search
+        for(let i=0;i<localStorageItems.length;i++){
+          if(localStorageItems[i].url === article.url){
+            sameExists = true
+            break
+          }
+        }
+  
+        setAllArticles(updatedAllArticles)
+        localStorage.setItem('articleUrls',JSON.stringify(updatedAllArticles))
+      }
+    }else{
+      setArticle(sameData)
+    }
+    
   }
 
   const handleChange = (e) => {
